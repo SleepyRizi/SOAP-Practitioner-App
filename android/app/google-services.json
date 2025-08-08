@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "1066069707693",
+    "project_id": "soap-4f8dc",
+    "storage_bucket": "soap-4f8dc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1066069707693:android:c431a8ebff9c5fe73eaf24",
+        "android_client_info": {
+          "package_name": "com.soap.client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEbaAHNQtIC4GzGRXUpfEwmaXvwtKUYlU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1066069707693:android:38a752b6449acdb53eaf24",
+        "android_client_info": {
+          "package_name": "com.soap.io.soap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEbaAHNQtIC4GzGRXUpfEwmaXvwtKUYlU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1066069707693:android:e045cf6d686ce8f33eaf24",
+        "android_client_info": {
+          "package_name": "com.soap.practitioner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEbaAHNQtIC4GzGRXUpfEwmaXvwtKUYlU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

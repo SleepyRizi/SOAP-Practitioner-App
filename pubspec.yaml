@@ -1,0 +1,50 @@
+name: soap
+description: "Soap Notes Practitioner App"
+
+publish_to: 'none'
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.2
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  cupertino_icons: ^1.0.8
+  get: ^4.7.2
+  firebase_core: ^3.15.2
+  firebase_auth: ^5.7.0
+  cloud_firestore: ^5.6.12
+  intl: ^0.20.2
+  flutter_svg: ^2.2.0
+  flutter_spinkit: ^5.2.1
+  cloud_functions: ^5.6.2
+  change_app_package_name: ^1.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+  flutter_lints: ^5.0.0
+
+flutter:
+
+
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/images/
+
+  fonts:
+    - family: Cormorant Garamond
+      fonts:
+        - asset: assets/fonts/CormorantGaramond-VariableFont_wght.ttf
+        - asset: assets/fonts/CormorantGaramond-Italic-VariableFont_wght.ttf
+          style: italic
