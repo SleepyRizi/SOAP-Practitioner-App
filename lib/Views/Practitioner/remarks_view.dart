@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../Constants/app_colors.dart';
 import '../../Models/assessment_model.dart';
+import '../../Services/auth_service.dart';
 import '../../Services/firestore_service.dart';
 import '../Success/success_view.dart';
 
@@ -274,11 +275,26 @@ class _RemarksViewState extends State<RemarksView>
                 FocusManager.instance.primaryFocus?.unfocus();
                 await Future.delayed(const Duration(milliseconds: 50));
 
-                final fs = Get.find<FirestoreService>();
-                await fs.completeAssessment(widget.assessment.referral, widget.assessment.id);
+                final fs  = Get.find<FirestoreService>();
+                final uid = Get.find<AuthService>().currentUser!.uid;
+
+                // save remarks first
+                await fs.updateAssessment(
+                  widget.assessment.referral,
+                  widget.assessment.id,
+                  {'practitionerRemarks': _remarks.toJson()},
+                );
+
+                // then complete
+                await fs.completeAssessment(
+                  widget.assessment.referral,
+                  widget.assessment.id,
+                  practitionerUid: uid,
+                );
 
                 Get.to(() => const SuccessView());
               },
+
 
 
               child: const Text(

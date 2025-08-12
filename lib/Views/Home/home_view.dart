@@ -6,6 +6,7 @@ import '../../Models/assessment_model.dart';
 import '../../Services/auth_service.dart';
 import '../../Services/firestore_service.dart';
 import '../../routes/app_pages.dart';
+import '../Common/bottom_bar.dart';
 
 /*──────────────────── Entry ────────────────────*/
 
@@ -76,7 +77,8 @@ class HomeView extends StatelessWidget {
         ),
 
         /* ───────── Bottom bar ───────── */
-        bottomNavigationBar: const _BottomBar(),
+        bottomNavigationBar: const AppBottomBar(current: BottomTab.home),
+
       ),
     );
   }
@@ -661,24 +663,3 @@ class _EmptyCard extends StatelessWidget {
   );
 }
 
-class _BottomBar extends StatelessWidget {
-  const _BottomBar();
-
-  @override
-  Widget build(BuildContext context) => Container(
-    height: 64,
-    decoration: BoxDecoration(
-      border: Border.all(color: const Color(0xFFE0E0E0)),
-      color: const Color(0xFFFAFDFF),
-    ),
-    padding: const EdgeInsets.symmetric(horizontal: 59, vertical: 12),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: const [
-        Icon(Icons.home, size: 24, color: Color(0xFF2D5661)),
-        Icon(Icons.person_outline, size: 24, color: Colors.black54),
-        Icon(Icons.settings_outlined, size: 24, color: Colors.black54),
-      ],
-    ),
-  );
-}

@@ -12,11 +12,20 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
+
+/// Quick date ranges for the filters dialog.
+enum _QuickRange { today, last7, all }
+
+/// Sort choices for the filters dialog.
+enum _Sort { nameAsc, lastVisitDesc }
+
 class AuthService extends GetxService {
   final _auth      = FirebaseAuth.instance;
   final _db        = FirebaseFirestore.instance;
   CollectionReference get _otpCol => _db.collection('emailOtps');
   final _functions = FirebaseFunctions.instanceFor(region: 'us-central1');
+
+
 
   User? get currentUser => _auth.currentUser;
 
