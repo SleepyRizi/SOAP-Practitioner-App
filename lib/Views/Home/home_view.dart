@@ -205,11 +205,9 @@ class _PillRow extends StatelessWidget {
           onTap: () => ctrl.animateTo(index),
           child: Container(
             alignment: Alignment.center,
-            padding:
-            const EdgeInsets.symmetric(horizontal: 24, vertical: 11),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 11),
             decoration: BoxDecoration(
-              color:
-              selected ? const Color(0xFF2D5661) : Colors.transparent,
+              color: selected ? const Color(0xFF2D5661) : Colors.transparent,
               borderRadius: BorderRadius.circular(50),
             ),
             child: Text(
@@ -219,8 +217,7 @@ class _PillRow extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'Avenir',
                 fontSize: 20,
-                fontWeight:
-                selected ? FontWeight.w500 : FontWeight.w300,
+                fontWeight: selected ? FontWeight.w500 : FontWeight.w300,
                 color: selected ? Colors.white : Colors.black,
               ),
             ),
@@ -229,17 +226,22 @@ class _PillRow extends StatelessWidget {
       );
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-        borderRadius: BorderRadius.circular(90),
-      ),
-      child: Row(
-        children: [
-          pill("Today's Patients", 0),
-          pill('Pending forms', 1),
-        ],
-      ),
+    return AnimatedBuilder(
+      animation: ctrl,
+      builder: (_, __) {
+        return Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFFE0E0E0)),
+            borderRadius: BorderRadius.circular(90),
+          ),
+          child: Row(
+            children: [
+              pill("Today's Patients", 0),
+              pill('Pending forms', 1),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -285,19 +287,22 @@ class _PatientList extends StatelessWidget {
           );
         }
 
-        /* 2️⃣  “Complete” keeps using arguments for the draft form screen */
+        /* 2️⃣  “Complete” opens the same new AssessmentView (Practitioner tab) */
         return _PatientRow(
           data     : a,
           label    : label,
           outlined : outlined,
           onTap    : () => Get.toNamed(
-            Routes.formDetail,
-            arguments: {
-              'referral'     : a.referral,
-              'assessmentId' : a.id,
+            Routes.patientDetail,               // 👈 new screen (AssessmentView)
+            parameters: {
+              'assessmentId': a.id,
+              'referral'    : a.referral,
+              'tab'         : 'practitioner',  // 👈 select main Practitioner tab
+              'prac'        : '0',             // 👈 sub-tab: 0 Objective, 1 Plan, 2 Remarks
             },
           ),
         );
+
       },
     );
   }
@@ -370,24 +375,53 @@ class _PatientRow extends StatelessWidget {
     );
 
     // ── Tablets & big phones: one tidy row ──
+    // ── Tablets & big phones: one tidy row ──
     if (tablet) {
+      // slightly tighter gaps for narrow tablet widths
+      final gap = scrW < 640 ? 20.0 : 32.0;
+
+      // a slightly smaller area column on tight widths
+      final areaWidth = scrW < 640 ? 110.0 : 130.0;
+
+      final area = _MetaCol(
+        width: areaWidth,
+        title: 'Area',
+        value: data.chiefComplaint,
+      );
+
+      // make the trailing chip shrink if space is tight
+      final trailing = Flexible(
+        fit: FlexFit.loose,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: FittedBox(
+            // scales down the chip only if needed
+            child: GestureDetector(
+              onTap: onTap,
+              child: _ActionChip(label: label, outlined: outlined),
+            ),
+          ),
+        ),
+      );
+
       return _wrapContainer(
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             name,
-            const SizedBox(width: 32),
+            SizedBox(width: gap),
             time,
-            const SizedBox(width: 32),
+            SizedBox(width: gap),
             area,
-            const SizedBox(width: 32),
+            SizedBox(width: gap),
             pain,
-            const Spacer(),             // keeps chip at extreme right
-            chip,
+            const Spacer(),
+            trailing, // 👈 shrinkable chip
           ],
         ),
       );
     }
+
 
     // ── Small phones: Wrap with 16-px gaps ──
     return _wrapContainer(

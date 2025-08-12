@@ -151,14 +151,40 @@ class FirestoreService {
   }
 
   // FirestoreService
-  Future<void> updateAssessment(String referral, String id, Map<String, dynamic> data) {
-    return FirebaseFirestore.instance
-        .collection('patients')
-        .doc(referral)
-        .collection('assessments')
-        .doc(id)
-        .set(data, SetOptions(merge: true));
+  Future<void> updateAssessment(
+      String referral,
+      String id,
+      Map<String, dynamic> data, {
+        bool markTouchedByPractitioner = false,
+        String? practitionerUid,
+      }) async {
+    final doc = _patients.doc(referral).collection('assessments').doc(id);
+
+    final patch = <String, dynamic>{
+      ...data,
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+
+    if (markTouchedByPractitioner) {
+      patch['status'] = 'incomplete';
+      if (practitionerUid != null) {
+        patch['practitionerUid'] = practitionerUid;
+      }
+    }
+
+    await doc.set(patch, SetOptions(merge: true));
   }
+
+  Future<void> completeAssessment(String referral, String id) async {
+    final doc = _patients.doc(referral).collection('assessments').doc(id);
+    await doc.set({
+      'status'      : 'completed',
+      'completedAt' : FieldValue.serverTimestamp(),
+      'updatedAt'   : FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+
 
 
 }

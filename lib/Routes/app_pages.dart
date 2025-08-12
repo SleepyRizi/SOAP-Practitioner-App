@@ -15,8 +15,10 @@ import '../Views/Auth/Signup/signup_view.dart';
 import '../Views/Auth/Success/success_view.dart';
 
 /* ── Core / misc ────────────────────────────────────── */
+import '../Views/Settings/settings_view.dart';
 import '../Views/Splash/splash_controller.dart';
 import '../Views/Splash/splash_view.dart';
+import '../Views/Users/users_view.dart';
 import '../Views/Welcome/welcome_controller.dart';
 import '../Views/Welcome/welcome_view.dart';
 import '../Views/Home/home_view.dart';
@@ -88,6 +90,9 @@ class AppPages {
       page: () => const HomeView(),
     ),
 
+    GetPage(name: Routes.users, page: () => const UsersView()),
+
+    GetPage(name: Routes.settings, page: () => const SettingsView()),
     /* Patient / Assessment flow */
     GetPage(
       name: Routes.patientDetail,             // <- used by the “Start” chip

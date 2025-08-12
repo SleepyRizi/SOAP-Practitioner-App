@@ -12,7 +12,8 @@ abstract class Routes {
   static const passwordUpdateSuccess = '/password-update-success';
 
   static const home          = '/home';
-
+  static const users    = '/users';
+  static const settings = '/settings';
   /* Patient-side */
   static const patientDetail = '/patient-detail';   // AssessmentView
   static const formDetail    = '/form-detail';      // FormDetailView

@@ -481,6 +481,13 @@ class _CheckupDetailsViewState extends State<CheckupDetailsView>
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4)),
                   side: const BorderSide(color: Color(0xFFE0E0E0)),
+                  fillColor: MaterialStateProperty.resolveWith((states) {
+                    if (states.contains(MaterialState.selected)) {
+                      return AppColors.primary; // ✅ primary color when checked
+                    }
+                    return Colors.transparent; // unfilled when unchecked
+                  }),
+                  checkColor: Colors.white,
                 ),
                 const SizedBox(width: 6),
                 Flexible(

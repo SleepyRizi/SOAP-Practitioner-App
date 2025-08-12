@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../Models/assessment_model.dart';
+import '../../Services/auth_service.dart';
 import '../../Services/firestore_service.dart';
 import '../../constants/app_colors.dart'; // AppColors.primary
 import '../Practitioner/checkup_details_view.dart';
@@ -20,8 +21,23 @@ class AssessmentView extends StatefulWidget {
 
 class _AssessmentViewState extends State<AssessmentView>
     with TickerProviderStateMixin {
-  late final TabController _tabs = TabController(length: 2, vsync: this);
-  late final TabController _pracTabs = TabController(length: 3, vsync: this);
+  late TabController _tabs;
+  late TabController _pracTabs;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // read params: ?tab=practitioner&prac=1  (0=Objective, 1=Plan, 2=Remarks)
+    final p = Get.parameters;
+    final mainIndex = (p['tab'] == 'practitioner') ? 1 : 0;
+    final subRaw    = int.tryParse(p['prac'] ?? '0') ?? 0;
+    final subIndex  = subRaw < 0 ? 0 : (subRaw > 2 ? 2 : subRaw);
+
+    _tabs     = TabController(length: 2, vsync: this, initialIndex: mainIndex);
+    _pracTabs = TabController(length: 3, vsync: this, initialIndex: subIndex);
+  }
+
 
   @override
   void dispose() {
@@ -381,10 +397,11 @@ class _AssessmentViewState extends State<AssessmentView>
                                           onNext: () => _pracTabs.animateTo(1), // ✅ go to Assessment / Plan
                                         ),
                                         AssessmentPlanView(
-                                          key: const PageStorageKey(
-                                              'prac-plan'),
+                                          key: const PageStorageKey('prac-plan'),
                                           assessment: a,
                                           onChanged: _saveAssessment,
+                                          // ⬇️ add onNext here
+                                          onNext: () => _pracTabs.animateTo(2), // ✅ go to Remarks
                                         ),
                                         RemarksView(
                                           key: const PageStorageKey(
@@ -414,12 +431,22 @@ class _AssessmentViewState extends State<AssessmentView>
 
   /* ─── helpers ─── */
   Future<void> _saveAssessment(AssessmentModel updated) async {
-    await Get.find<FirestoreService>().updateAssessment(
+    final fs  = Get.find<FirestoreService>();
+    final uid = Get.find<AuthService>().currentUser!.uid;
+
+    await fs.updateAssessment(
       updated.referral,
       updated.id,
-      updated.toJson(),
+      {
+        ...updated.toJson(),
+        'status': 'incomplete',      // any practitioner edit → pending
+        'practitionerUid': uid,      // who touched it
+      },
     );
   }
+
+
+
 
   Widget _label(String text) => Text(
     text,
