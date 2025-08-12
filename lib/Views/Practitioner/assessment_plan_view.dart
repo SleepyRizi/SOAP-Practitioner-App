@@ -28,6 +28,10 @@ class _AssessmentPlanViewState extends State<AssessmentPlanView>
   final _techRow2 = const ['Reflexology', 'Trigger Points', 'Myofascial Release', 'Medi-Cupping'];
   final _techRow3 = const ['Stretching', 'Hot Packs', 'TENS', 'ESWT'];
 
+  List<String> get _allTechniques => [..._techRow1, ..._techRow2, ..._techRow3];
+  List<String> get _techniquesWithoutAll =>
+      _allTechniques.where((e) => e != 'All').toList(growable: false);
+
   final _durations = const <int>[15, 30, 45, 60];
   final _cadences = const ['Week', 'Two Weeks', 'Month'];
 
@@ -179,7 +183,33 @@ class _AssessmentPlanViewState extends State<AssessmentPlanView>
 
   void _toggleTechnique(String v) {
     final s = _plan.techniquesUsed.toList();
-    s.contains(v) ? s.remove(v) : s.add(v);
+
+    if (v == 'All') {
+      final allSelected = _techniquesWithoutAll.every(s.contains);
+      if (allSelected && s.contains('All')) {
+        // Unselect all
+        s
+          ..clear();
+      } else {
+        // Select every technique including 'All'
+        s
+          ..clear()
+          ..addAll(_techniquesWithoutAll)
+          ..add('All');
+      }
+    } else {
+      // Toggle single technique
+      s.contains(v) ? s.remove(v) : s.add(v);
+
+      // Maintain 'All' consistency:
+      final nowAllSelected = _techniquesWithoutAll.every(s.contains);
+      if (nowAllSelected) {
+        if (!s.contains('All')) s.add('All');
+      } else {
+        s.remove('All');
+      }
+    }
+
     _plan = _plan.copyWith(techniquesUsed: s);
     _emit();
   }

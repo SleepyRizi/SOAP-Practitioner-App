@@ -28,7 +28,6 @@ class _CheckupDetailsViewState extends State<CheckupDetailsView>
   final _palpArea1  = TextEditingController();
   final _palpArea2  = TextEditingController();
 
-
   String _romRestriction = '';
 
   @override
@@ -467,7 +466,12 @@ class _CheckupDetailsViewState extends State<CheckupDetailsView>
           width: 200,
           child: InkWell(
             onTap: () {
-              _set(sec, choice.copyWith(checked: !choice.checked));
+              final nowChecked = !choice.checked;
+              // if unchecking, also clear severity ('' represents none)
+              _set(sec, choice.copyWith(
+                checked: nowChecked,
+                severity: nowChecked ? choice.severity : '',
+              ));
               _emit();
             },
             child: Row(
@@ -475,7 +479,11 @@ class _CheckupDetailsViewState extends State<CheckupDetailsView>
                 Checkbox(
                   value: choice.checked,
                   onChanged: (v) {
-                    _set(sec, choice.copyWith(checked: v ?? false));
+                    final checked = v ?? false;
+                    _set(sec, choice.copyWith(
+                      checked: checked,
+                      severity: checked ? choice.severity : '',
+                    ));
                     _emit();
                   },
                   shape: RoundedRectangleBorder(
@@ -529,7 +537,13 @@ class _CheckupDetailsViewState extends State<CheckupDetailsView>
                   ),
                 ),
                 onSelected: (_) {
-                  _set(sec, choice.copyWith(severity: e));
+                  // Toggle chip: if already selected → clear and uncheck.
+                  // If selecting → set severity and auto-check.
+                  if (sel) {
+                    _set(sec, choice.copyWith(severity: '', checked: false));
+                  } else {
+                    _set(sec, choice.copyWith(severity: e, checked: true));
+                  }
                   _emit();
                 },
               );

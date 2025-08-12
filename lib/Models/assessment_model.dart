@@ -159,6 +159,23 @@ class PractitionerObjective {
     'rom': rom.toJson(),
     'palpation': palpation.map((e) => e.toJson()).toList(),
   };
+
+  PractitionerObjective copyWith({
+    PostureSection? spine,
+    PostureSection? pelvis,
+    PostureSection? shoulder,
+    PostureSection? gait,
+    RangeOfMotion? rom,
+    List<PalpationEntry>? palpation,
+  }) =>
+      PractitionerObjective(
+        spine: spine ?? this.spine,
+        pelvis: pelvis ?? this.pelvis,
+        shoulder: shoulder ?? this.shoulder,
+        gait: gait ?? this.gait,
+        rom: rom ?? this.rom,
+        palpation: palpation ?? this.palpation,
+      );
 }
 
 class PractitionerPlan {
@@ -210,6 +227,29 @@ class PractitionerPlan {
     'sessionEvery': sessionEvery,
     'recommendations': recommendations,
   };
+
+  // 🔧 Added
+  PractitionerPlan copyWith({
+    List<String>? areasTreated,
+    String? areasOther,
+    List<String>? techniquesUsed,
+    String? techniquesOther,
+    int? painAfterSession,
+    String? clientResponse,
+    List<int>? followUpWith,
+    List<String>? sessionEvery,
+    String? recommendations,
+  }) => PractitionerPlan(
+    areasTreated: areasTreated ?? this.areasTreated,
+    areasOther: areasOther ?? this.areasOther,
+    techniquesUsed: techniquesUsed ?? this.techniquesUsed,
+    techniquesOther: techniquesOther ?? this.techniquesOther,
+    painAfterSession: painAfterSession ?? this.painAfterSession,
+    clientResponse: clientResponse ?? this.clientResponse,
+    followUpWith: followUpWith ?? this.followUpWith,
+    sessionEvery: sessionEvery ?? this.sessionEvery,
+    recommendations: recommendations ?? this.recommendations,
+  );
 }
 
 class PractitionerRemarks {
@@ -257,6 +297,25 @@ class PractitionerRemarks {
     musclesBySection.map((k, v) => MapEntry(k, v.toList())),
     'notes': notes.isNotEmpty ? notes : noteLong,
   };
+
+  // 🔧 Added
+  PractitionerRemarks copyWith({
+    bool? na,
+    bool? initialAppointment,
+    bool? finalAppointment,
+    String? noteShort,
+    String? noteLong,
+    Map<String, List<String>>? musclesBySection,
+    String? notes,
+  }) => PractitionerRemarks(
+    na: na ?? this.na,
+    initialAppointment: initialAppointment ?? this.initialAppointment,
+    finalAppointment: finalAppointment ?? this.finalAppointment,
+    noteShort: noteShort ?? this.noteShort,
+    noteLong: noteLong ?? this.noteLong,
+    musclesBySection: musclesBySection ?? this.musclesBySection,
+    notes: notes ?? this.notes,
+  );
 }
 
 /* ═════════════════════════════════  Main AssessmentModel  ═════════════════════════════════ */
