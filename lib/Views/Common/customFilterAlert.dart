@@ -109,7 +109,7 @@ class _CustomFilterAlertState extends State<CustomFilterAlert> {
                     FilterResult(range: range, sort: sort),
                   );
                 },
-                child: const Text('Apply'),
+                child: const Text('Apply', style: TextStyle(color: Colors.white),),
               ),
             ),
           ],

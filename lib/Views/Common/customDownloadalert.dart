@@ -109,8 +109,8 @@ class CustomDownloadAlert extends StatelessWidget {
                             );
                           }
                         },
-                        icon: const Icon(Icons.download),
-                        label: const Text('Download All'),
+                        icon: const Icon(Icons.download, color: Colors.white,),
+                        label: const Text('Download All', style: TextStyle(color: Colors.white),),
                       ),
                     ),
                   ],
@@ -189,8 +189,8 @@ class _FileRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
             ),
             onPressed: onDownload,
-            icon: const Icon(Icons.download),
-            label: const Text('Download'),
+            icon: const Icon(Icons.download,  color: Colors.white,),
+            label: const Text('Download',  style: TextStyle(color: Colors.white),),
           ),
         ],
       ),
