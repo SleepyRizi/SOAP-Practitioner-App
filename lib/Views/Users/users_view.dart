@@ -1,3 +1,4 @@
+// lib/Views/Users/users_view.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +9,10 @@ import '../../Services/firestore_service.dart';
 import '../Common/bottom_bar.dart';
 import '../../routes/app_pages.dart';
 
+
+import '../Common/customDownloadalert.dart';
+import '../Common/customFilterAlert.dart';
+
 class UsersView extends StatefulWidget {
   const UsersView({super.key});
 
@@ -17,6 +22,10 @@ class UsersView extends StatefulWidget {
 
 class _UsersViewState extends State<UsersView> {
   final _searchCtrl = TextEditingController();
+
+  // Filters (default to "All" + last visit desc)
+  QuickRange _range = QuickRange.all;
+  SortOption _sort = SortOption.lastVisitDesc;
 
   @override
   void dispose() {
@@ -114,11 +123,20 @@ class _UsersViewState extends State<UsersView> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                // Filters pill (placeholder)
+                // Filters pill (opens popup)
                 InkWell(
                   borderRadius: BorderRadius.circular(50),
-                  onTap: () {
-                    // TODO: open filters bottom sheet if needed
+                  onTap: () async {
+                    final res = await showDialog<FilterResult>(
+                      context: context,
+                      builder: (_) => const CustomFilterAlert(),
+                    );
+                    if (res != null) {
+                      setState(() {
+                        _range = res.range;
+                        _sort  = res.sort;
+                      });
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 11),
@@ -160,10 +178,12 @@ class _UsersViewState extends State<UsersView> {
                     ),
                     padding: const EdgeInsets.all(30),
                     child: StreamBuilder<List<AssessmentModel>>(
-                      // Choose one:
-                      // 1) All completed: fs.streamCompletedAssessments()
-                      // 2) Only mine:     fs.streamCompletedAssessments(practitionerUid: uid)
-                      stream:  fs.streamCompletedAssessments(practitionerUid: uid),
+                      // Server-side filter by range/sort; scoped to current practitioner
+                      stream: fs.streamCompletedAssessmentsFiltered(
+                        practitionerUid: uid,
+                        range: _range,
+                        sort: _sort,
+                      ),
                       builder: (_, snap) {
                         if (snap.connectionState == ConnectionState.waiting) {
                           return const Center(child: CircularProgressIndicator());
@@ -175,7 +195,7 @@ class _UsersViewState extends State<UsersView> {
                         final list = q.isEmpty
                             ? all
                             : all.where((a) {
-                          final name = ('${a.firstName} ${a.lastName}').toLowerCase();
+                          final name = ('${a.firstName} ${a.lastName}').trim().toLowerCase();
                           final ref  = a.referral.toLowerCase();
                           return name.contains(q) || ref.contains(q);
                         }).toList();
@@ -190,9 +210,21 @@ class _UsersViewState extends State<UsersView> {
                           itemBuilder: (_, i) {
                             final a = list[i];
                             return _CompletedRow(
+                              uid: uid,
                               data: a,
-                              onTap: () {
-                                // View the assessment (Patient tab by default)
+                              onOpenDownload: () async {
+                                final displayName = '${a.firstName} ${a.lastName}'.trim();
+                                await showDialog(
+                                  context: context,
+                                  builder: (_) => CustomDownloadAlert(
+                                    referral: a.referral,
+                                    displayName: displayName,
+                                    practitionerUid: uid,
+                                  ),
+                                );
+                              },
+                              onViewPatient: () {
+                                // Keep existing navigation (tap name/row in future if needed)
                                 Get.toNamed(
                                   Routes.patientDetail,
                                   parameters: {
@@ -232,9 +264,9 @@ class _EmptyUsersCard extends StatelessWidget {
         const Text(
           'Looks like there are no patients yet!',
           style: TextStyle(
-            fontFamily : 'Avenir',
-            fontSize   : 30,
-            fontWeight : FontWeight.w500,
+            fontFamily: 'Avenir',
+            fontSize: 30,
+            fontWeight: FontWeight.w500,
             letterSpacing: -0.41,
           ),
         ),
@@ -243,11 +275,19 @@ class _EmptyUsersCard extends StatelessWidget {
   );
 }
 
-/*───────────── Completed row (Figma-ish) ─────────────*/
+/*───────────── Completed row ─────────────*/
 class _CompletedRow extends StatelessWidget {
-  const _CompletedRow({required this.data, required this.onTap});
+  const _CompletedRow({
+    required this.data,
+    required this.uid,
+    required this.onOpenDownload,
+    required this.onViewPatient,
+  });
+
   final AssessmentModel data;
-  final VoidCallback onTap;
+  final String uid;
+  final VoidCallback onOpenDownload;
+  final VoidCallback onViewPatient;
 
   Color _dot(int p) =>
       p >= 7 ? const Color(0xFFFF5656)
@@ -264,14 +304,17 @@ class _CompletedRow extends StatelessWidget {
 
     final name = SizedBox(
       width: 135,
-      child: Text(
-        ' ${data.firstName} ${data.lastName}',
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          color: Colors.black,
-          fontSize: 16,
-          fontFamily: 'Avenir',
-          fontWeight: FontWeight.w800,
+      child: GestureDetector(
+        onTap: onViewPatient,
+        child: Text(
+          ' ${data.firstName} ${data.lastName}',
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 16,
+            fontFamily: 'Avenir',
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
     );
@@ -285,20 +328,22 @@ class _CompletedRow extends StatelessWidget {
       dotColor: _dot(data.currentPain),
     );
 
-    // trailing: small pill with just arrow (per Figma)
+    // trailing: Download pill (color reflects already-downloaded)
+    final already = data.downloadedBy[uid] == true;
+    final btnColor = already ? const Color(0xFFBBD1D7) : const Color(0xFF2D5661);
+
     final trailing = GestureDetector(
-      onTap: onTap,
+      onTap: onOpenDownload,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
         decoration: ShapeDecoration(
-          color: const Color(0xFF2D5661),
+          color: btnColor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         ),
-        child: const Icon(Icons.arrow_forward, size: 22, color: Colors.white),
+        child: const Icon(Icons.download, size: 22, color: Colors.white),
       ),
     );
 
-    // outlined container for a “selected” look is optional; here we keep all white
     return Container(
       padding: const EdgeInsets.all(25),
       decoration: ShapeDecoration(
